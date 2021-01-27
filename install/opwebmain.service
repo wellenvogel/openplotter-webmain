@@ -30,10 +30,13 @@ After=syslog.target network.target
 User=pi
 Environment=PORT=8888
 Environment=LOGDIR=opwebmain
-ExecStart=/usr/bin/python3 /usr/lib/opwebmain/main/server.py -p ${PORT} -l ${LOGDIR} -h
+ExecStart=/usr/bin/python3 /usr/lib/opwebmain/main/server/server.py -p ${PORT} -l ${LOGDIR} -h
 KillMode=control-group
 Restart=always
 TimeoutStopSec=10
+ExecStartPre=+/bin/sh -c "/usr/lib/opwebmain/ipTables80.sh ${PORT} enable"
+ExecStopPost=+/bin/sh -c "/usr/lib/opwebmain/ipTables80.sh ${PORT} disable"
+
 
 
 [Install]

@@ -15,13 +15,16 @@ description: |
   OPWebMain 
 homepage: "https://example.com"
 license: "MIT"
+scripts:
+  postinstall: install/postinstall
 contents:
 - src: ./gui/*
   dst: /usr/lib/opwebmain/main/gui
 - src: ./install/*.service
   dst: /lib/systemd/system/
-#- src: ./gui/icons/*
-#  dst: /usr/lib/opwebmain/main/gui/icons
+- src: ./gui/icons/*
+  dst: /usr/lib/opwebmain/main/gui/icons
 - src: ./server/*py
   dst: /usr/lib/opwebmain/main/server
-
+- src: ipTables80.sh
+  dst: /usr/lib/opwebmain/ipTables80.sh

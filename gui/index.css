@@ -28,13 +28,17 @@ text {
 
 #title {
     height: 2em;
-    background-color: #0b46ec;
-    color: white;
+    background-color: #ececec;
+    color: #020202ba;
     font-size: 2em;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+#title .icon{
+    width: 1em;
+    height: 1em;
 }
 
 #root {
@@ -57,6 +61,11 @@ text {
     padding: 1em;
     border-bottom: 1px solid #8080808a;
     text-decoration: underline;
+}
+.icon {
+    width: 2em;
+    height: 2em;
+    margin-right: 1em;
 }
 
 
