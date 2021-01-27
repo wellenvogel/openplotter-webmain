@@ -1,0 +1,27 @@
+
+name: "openplotter-webmain"
+arch: "all"
+platform: "linux"
+version: "20210116"
+keep_version: true
+section: "default"
+priority: "extra"
+depends:
+- python3-apt
+- python3-pydbus
+- python3-xdg
+maintainer: "Andreas Vogel <andreas@wellenvogel.de>"
+description: |
+  OPWebMain 
+homepage: "https://example.com"
+license: "MIT"
+contents:
+- src: ./gui/*
+  dst: /usr/lib/opwebmain/main/gui
+- src: ./install/*.service
+  dst: /lib/systemd/system/
+#- src: ./gui/icons/*
+#  dst: /usr/lib/opwebmain/main/gui/icons
+- src: ./server/*py
+  dst: /usr/lib/opwebmain/main/server
+

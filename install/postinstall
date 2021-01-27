@@ -1,0 +1,40 @@
+#! /bin/sh
+servicedir=/etc/systemd/system/avnavupdater.service.d
+cfg=override.conf
+if [ ! -f $servicedir/$cfg ] ; then
+    if [ ! -d $servicedir ] ; then
+        mkdir -p $servicedir
+    fi
+    cp /usr/lib/avnav/plugins/update/install/$cfg $servicedir/$cfg
+fi
+user=pi
+systemcfg=/lib/systemd/system/avnavupdater.service
+x="`/usr/bin/getent passwd $user`" || echo "user $user not found"
+if [ "$x" = "" ] ; then
+    user=avnav
+    x="`/usr/bin/getent passwd $user`" || echo "user $user not found"
+    if [ "$x" = "" ] ; then
+        echo "either the user pi or the user avnav must exist"
+        exit 1
+    else
+        echo "using the user $user"
+        if grep -q "^ *User= *$user" $systemcfg ; then
+            echo "serviceconfig ok"
+        else
+            echo "setting the updater service to run with user $user"
+            sed -i -e "s/^ *User=.*/User=$user/" $systemcfg
+        fi
+    fi
+
+else
+    echo "user pi already exists"
+fi
+homedir=`echo "$x" |cut -f 6 -d :`
+if [ ! -d "$homedir" ] ; then
+    echo "home directory $homedir not found, creating it for logs"
+    mkdir -p "$homedir"
+    chown -R $user "$homedir"
+fi
+
+systemctl daemon-reload
+systemctl enable --now avnavupdater
