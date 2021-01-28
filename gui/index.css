@@ -61,6 +61,7 @@ text {
     padding: 1em;
     border-bottom: 1px solid #8080808a;
     text-decoration: underline;
+    cursor: pointer;
 }
 .icon {
     width: 2em;
