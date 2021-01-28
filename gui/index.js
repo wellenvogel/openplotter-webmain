@@ -1,7 +1,7 @@
 (function(){
     let webSocketConnection;
     let apiRequest=function(command){
-        let url="/api/"+command;
+        let url="api/"+command;
         return new Promise(function(resolve,reject){
             fetch(url)
             .then(function(r){

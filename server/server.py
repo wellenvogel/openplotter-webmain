@@ -33,6 +33,7 @@ import threading
 import time
 import traceback
 
+from apphandler import AppPath, AppHandler
 from commands import Commands
 from handler import Handler
 from network import NetworkChecker
@@ -83,6 +84,8 @@ class WSConsole(HTTPWebSocketsHandler, Handler):
 
 
 
+
+
 class OurHTTPServer(socketserver.ThreadingMixIn,http.server.HTTPServer):
   def __init__(self, server_address, RequestHandlerClass, bind_and_activate=True):
     http.server.HTTPServer.__init__(self,server_address,RequestHandlerClass,bind_and_activate)
@@ -95,7 +98,24 @@ class OurHTTPServer(socketserver.ThreadingMixIn,http.server.HTTPServer):
     self.networkChecker.available()
     self.console=SimpleQueue(1000)
     self.xdgHandler=XdgMenus()
+    self.pathMappings=[]
+    self.pathMappings.append(AppPath('main', os.path.join(os.path.dirname(__file__),'..','gui'),None,isMain=True))
+    self.appHandler=AppHandler()
 
+
+  def fetchApps(self):
+    newMappings=self.pathMappings[0:1]
+    newMappings.extend(self.appHandler.scanApps())
+    self.pathMappings=newMappings
+  def getPathMapping(self,path):
+    for v in self.pathMappings:
+      if path.startswith(v.path):
+        path=path[len(v.path):]
+        return (path,v)
+    return (path,None)
+
+  def getEntryPage(self):
+    return '/main/index.html'
   def handle_error(self, request, client_address):
     estr=traceback.format_exc()
     logging.error("error in http request from %s: %s",str(client_address),estr)
@@ -173,6 +193,7 @@ if __name__ == '__main__':
   logging.info("OPWebMain updater started at port %d"%port)
   try:
     server=OurHTTPServer(('0.0.0.0',port), WSConsole)
+    server.fetchApps()
     server.serve_forever()
   except Exception as e:
     logging.error("Startup failed with exception: %s",str(e))

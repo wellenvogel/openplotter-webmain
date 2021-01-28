@@ -166,13 +166,47 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     return hostip
 
   def do_GET(self):
-    if not self.path.startswith("/api"):
+    if self.path == '' or self.path == '/':
+      path=self.server.getEntryPage()
+      self.send_response(HTTPStatus.MOVED_PERMANENTLY)
+      self.send_header("Location", path)
+      self.end_headers()
+      self.close_connection=True
+      return
+    (path, mapping) = self.server.getPathMapping(self.path)
+    if mapping is None:
+      logging.debug("no path mapping for %s",self.path)
+      self.send_response(404, 'not found')
+      self.end_headers()
+      self.close_connection = True
+      return
+    self.path=path
+    self.baseDir=mapping.base
+    if not self.path.startswith("api/"):
       return super().do_GET()
     (request,query)=self.pathQueryFromUrl(self.path)
-    request=request[len("/api/"):]
+    request=request[len("api/"):]
     requestParam=self.getRequestParam(query)
     if request.endswith("/"):
       request=request[:-1]
+    if not mapping.isMain:
+      if mapping.handler is None:
+        logging.debug("no handler for %s:%s", mapping.path,self.path)
+        self.send_response(404, 'not found')
+        self.end_headers()
+        self.close_connection = True
+      rt=mapping.handler.handleRequest(self.path,requestParam,handler=self,requestIp=self._getRequestIp())
+      if rt == True:
+        return
+      if rt == None:
+        logging.debug("no reponse for %s:%s", mapping.path, self.path)
+        self.send_response(404, 'not found')
+        self.end_headers()
+        self.close_connection = True
+        return
+      self.sendJsonResponse(rt)
+      return
+
     if request == 'icon':
       name=requestParam.get('name')
       if name is None or len(name) < 1:
